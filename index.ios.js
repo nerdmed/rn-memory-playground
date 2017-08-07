@@ -11,44 +11,64 @@ import {
   Text,
   View,
   Button,
-  ScrollView
+  ScrollView,
+  Image
 } from 'react-native';
 
+import coverFallbackImg from './coverFallback.gif';
+
 const bigArray = Array(300).fill().map((_, i) => i * i);
-const TEXT_OR_VIEWS = false;
+const dummyData = [];
+// text, redBoxes, coverFallbackImg
+const whatToRender = 'coverFallbackImg';
 
 export default class TextExample extends Component {
   state = {
-    showText: false
+    showText: false,
+    hideElements: false,
+    hideViaOpacity: false
   }
-
-  toggleText = () => {
-    this.setState({
-      showText: !this.state.showText
-    })
+  allocateMemory(){
+    generateRandomNumberData(10000000)
   }
 
   render() {
-    const description = TEXT_OR_VIEWS ? 'Text' : 'Red Boxes';
+    const description = whatToRender;
+    const hideStyles = this.state.hideElements ? { display: 'none' } : null;
+    const opacityHideStyles = this.state.hideViaOpacity ? { opacity: 0 } : null;
     return (
       <View style={styles.container}>
         <Text style={styles.welcome}>
           {`A lot of ${description}`}
         </Text>
-        <Button
-          onPress={this.toggleText}
-          title={`Toggle ${description}`}
-          color="#841584"
-        />
+
+        <Button onPress={() => this.setState({showText: !this.state.showText})} title={`Toggle ${description}`} color="#841584" />
+        <Button onPress={() => this.setState({hideElements: !this.state.hideElements})} title={'Hide Elements via display none'} color="#841584"/>
+        <Button onPress={() => this.setState({hideViaOpacity: !this.state.hideViaOpacity})} title={'Hide Elements via opacity'} color="#841584"/>
+        <Button onPress={() => { this.allocateMemory() }} title={'Allocate JS Memory'} color="#841584"/>
+
         <ScrollView style={{flex: 1}}>
         {this.state.showText && bigArray.map(number => {
-          return TEXT_OR_VIEWS ? (
-            <Text style={styles.instructions} key={number} >
-              {`Text ${number}`} 
-            </Text>
-          ) : (
-            <View style={styles.dummyBox} key={number} />
-          )
+          switch(whatToRender){
+            case 'text': {
+              return (
+                <Text style={[styles.instructions, hideStyles, opacityHideStyles]} key={number} >
+                  {`Text ${number}`} 
+                </Text>
+              )
+            }
+            case 'redBoxes': {
+              return (<View style={[styles.dummyBox, hideStyles, opacityHideStyles]} key={number} />)
+            }
+            case 'coverFallbackImg': {
+              return (<Image 
+                style={[styles.imageStyles, hideStyles, opacityHideStyles]} 
+                source={coverFallbackImg} 
+                key={number}
+              />)
+            }
+              
+          }
         })}
         </ScrollView>
       </View>
@@ -62,6 +82,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
+  },
+  imageStyles : {
+    width: 200, height: 200 
   },
   welcome: {
     fontSize: 20,
@@ -82,3 +105,25 @@ const styles = StyleSheet.create({
 });
 
 AppRegistry.registerComponent('TextExample', () => TextExample);
+
+
+function generateRandomStringData(size){
+    var chars = 'abcdefghijklmnopqrstuvwxyz'.split('');
+    var len = chars.length;
+    var string = ''
+
+    while (size--) {
+        string = string + chars[Math.random()*len | 0];
+    }
+    return string;
+}
+
+function generateRandomNumberData(size){
+    const array = [];
+
+    while (size--) {
+        array.push(Math.random())
+    }
+
+    return array;
+}
